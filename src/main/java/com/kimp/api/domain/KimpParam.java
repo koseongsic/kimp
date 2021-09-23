@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 public class KimpParam {
 
-    @ApiModelProperty(value="사이트 이름", notes="", example="", required=false)
-    private String Site;
+    @ApiModelProperty(value="코인 약어", notes="", example="", required=false)
+    private String coin;
 
 }
 

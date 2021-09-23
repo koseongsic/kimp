@@ -30,7 +30,7 @@ public class UpbitService {
         return upbitMap;
     }
 
-    private double getPrice(String coin) throws Exception {
+    public double getPrice(String coin) throws Exception {
         URL url = new URL("https://api.upbit.com/v1/ticker?markets=KRW-"+coin);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
@@ -49,17 +49,12 @@ public class UpbitService {
 
         //http 요청 응답 코드 확인 실시
         String responseCode = String.valueOf(con.getResponseCode());
-        System.out.println("http 응답 코드 : "+responseCode);
-        System.out.println("http 응답 데이터 : "+returnData);
-
-        System.out.println(returnData);
         JSONParser parser = new JSONParser();
         JSONArray jsonArray = (JSONArray) parser.parse(returnData);
         JSONObject jsonObject = (JSONObject) jsonArray.get(0);
         Double tradePrice = (Double) jsonObject.get("trade_price");
         NumberFormat f = NumberFormat.getInstance();
         f.setGroupingUsed(false);
-        System.out.println(f.format(tradePrice));
         con.disconnect();
         return tradePrice;
     }
