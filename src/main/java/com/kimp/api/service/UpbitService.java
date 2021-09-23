@@ -9,24 +9,29 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
 @Service
-public class BybitService {
+public class UpbitService {
+
+    public static final String WEB_DRIVER_ID = "webdriver.chrome.driver"; //드라이버 ID
+    public static final String WEB_DRIVER_PATH = "C:/Users/seongsic/Desktop/chromedriver_win32/chromedriver.exe"; //드라이버 경로
 
     public Map<String,Double> getList(List<String> coins) throws Exception {
-        Map<String,Double> bybitMap =new HashMap<>();
+        Map<String,Double> upbitMap =new HashMap<>();
         for (String coin : coins) {
             Double price = getPrice(coin);
-            bybitMap.put(coin,price);
+            upbitMap.put(coin,price);
         }
-        return bybitMap;
+        return upbitMap;
     }
-    public Double getPrice(String coin) throws Exception {
-        URL url = new URL("https://api.bybit.com/v2/public/liq-records?symbol="+coin+"USDT");
+
+    private double getPrice(String coin) throws Exception {
+        URL url = new URL("https://api.upbit.com/v1/ticker?markets=KRW-"+coin);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("Accept", "application/json");
@@ -47,19 +52,15 @@ public class BybitService {
         System.out.println("http 응답 코드 : "+responseCode);
         System.out.println("http 응답 데이터 : "+returnData);
 
+        System.out.println(returnData);
         JSONParser parser = new JSONParser();
-        JSONObject jsonObject = (JSONObject) parser.parse(returnData);
-        JSONArray jsonArray = (JSONArray) jsonObject.get("result");
-        JSONObject jsonObject1 = (JSONObject) jsonArray.get(0);
-        Object price = jsonObject1.get("price");
-        double dp = 0;
-        if(price instanceof Double){
-            dp = (double) price;
-        }else if(price instanceof Long){
-            Long lp = (Long) price;
-            dp =lp.doubleValue();
-        }
-        return dp;
+        JSONArray jsonArray = (JSONArray) parser.parse(returnData);
+        JSONObject jsonObject = (JSONObject) jsonArray.get(0);
+        Double tradePrice = (Double) jsonObject.get("trade_price");
+        NumberFormat f = NumberFormat.getInstance();
+        f.setGroupingUsed(false);
+        System.out.println(f.format(tradePrice));
+        con.disconnect();
+        return tradePrice;
     }
-
 }
