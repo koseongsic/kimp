@@ -16,7 +16,7 @@ import java.util.Map;
 
 
 @Service
-public class UpbitService {
+public class BinaceService {
 
     public Map<String,Double> getList(List<String> coins) throws Exception {
         Map<String,Double> upbitMap =new HashMap<>();
@@ -28,7 +28,7 @@ public class UpbitService {
     }
 
     public double getPrice(String coin) throws Exception {
-        URL url = new URL("https://api.upbit.com/v1/ticker?markets=KRW-"+coin);
+        URL url = new URL("https://api.binance.com/api/v3/ticker/price");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("Accept", "application/json");
@@ -45,13 +45,17 @@ public class UpbitService {
         String returnData = sb.toString();
 
         //http 요청 응답 코드 확인 실시
-        String responseCode = String.valueOf(con.getResponseCode());
         JSONParser parser = new JSONParser();
+        Double tradePrice =0.0;
         JSONArray jsonArray = (JSONArray) parser.parse(returnData);
-        JSONObject jsonObject = (JSONObject) jsonArray.get(0);
-        Double tradePrice = (Double) jsonObject.get("trade_price");
-        NumberFormat f = NumberFormat.getInstance();
-        f.setGroupingUsed(false);
+        for (Object o : jsonArray) {
+            JSONObject object = (JSONObject) o;
+            String coinName = (String) object.get("symbol");
+            if(coinName.equals(coin+"USDT")){
+                String price = (String) object.get("price");
+                tradePrice =Double.parseDouble(price);
+            }
+        }
         con.disconnect();
         return tradePrice;
     }
